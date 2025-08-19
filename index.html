@@ -155,82 +155,89 @@
     </div>
   </div>
 
-  <script>
-    let chongScore = 0;
-    let hongScore = 0;
-    let rotated = false;
-    let timerInterval;
-    let countdownTime = 30; // total seconds (2 minutes)
+ <script>
+  let chongScore = 0;
+  let hongScore = 0;
+  let rotated = false;
+  let timerInterval; 
+  let countdownTime = 30; // total seconds (2 minutes)
+  let timerActive = false; // to control scoring
 
-    function addScore(player, points) {
-      if (player === "chong") {
-        if (points === -1) {
-          hongScore += 1;
-        } else {
-          chongScore += points;
-        }
-      } else if (player === "hong") {
-        if (points === -1) {
-          chongScore += 1;
-        } else {
-          hongScore += points;
-        }
-      }
-      document.getElementById("scoreChong").innerText = chongScore;
-      document.getElementById("scoreHong").innerText = hongScore;
-    }
+  function addScore(player, points) {
+    if (!timerActive) return; // block scoring if time is over
 
-    function rotate() {
-      let scoreboard = document.querySelector(".scoreboard");
-      rotated = !rotated;
-      if (rotated) {
-        scoreboard.style.flexDirection = "row-reverse";
+    if (player === "chong") {
+      if (points === -1) {
+        hongScore += 1; 
       } else {
-        scoreboard.style.flexDirection = "row";
+        chongScore += points;
+      }
+    } else if (player === "hong") {
+      if (points === -1) {
+        chongScore += 1; 
+      } else {
+        hongScore += points;
       }
     }
+    document.getElementById("scoreChong").innerText = chongScore;
+    document.getElementById("scoreHong").innerText = hongScore;
+  }
 
-    // Countdown Timer
-    function startTimer() {
-      let timeLeft = countdownTime;
+  function rotate() {
+    let scoreboard = document.querySelector(".scoreboard");
+    rotated = !rotated;
+    if (rotated) {
+      scoreboard.style.flexDirection = "row-reverse";
+    } else {
+      scoreboard.style.flexDirection = "row";
+    }
+  }
+
+  // Countdown Timer
+  function startTimer() {
+    let timeLeft = countdownTime;
+    timerActive = true;
+    updateTimerDisplay(timeLeft);
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
       updateTimerDisplay(timeLeft);
 
-      timerInterval = setInterval(() => {
-        timeLeft--;
-        updateTimerDisplay(timeLeft);
-
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-        }
-      }, 1000);
-    }
-
-    function updateTimerDisplay(timeLeft) {
-      let min = String(Math.floor(timeLeft / 60)).padStart(2, '0');
-      let sec = String(timeLeft % 60).padStart(2, '0');
-      document.getElementById("timer").innerText = `${min}:${sec}`;
-    }
-
-    // Login
-    function login() {
-      let name = document.getElementById("refName").value.trim();
-      let court = document.getElementById("courtNumber").value.trim();
-      let otp = document.getElementById("otp").value.trim();
-
-      if (!name || !court || otp !== "12345") {
-        document.getElementById("loginError").innerText = "Invalid details. Try again.";
-        return;
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        timerActive = false;
+        alert("⏰ Time is over!");
       }
+    }, 1000);
+  }
 
-      document.getElementById("loginPage").style.display = "none";
-      document.getElementById("scorePage").style.display = "block";
-      document.getElementById("refNameBox").innerText = "Ref Name: " + name;
-      document.getElementById("courtBox").innerText = "Court: " + court;
+  function updateTimerDisplay(timeLeft) {
+    let min = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+    let sec = String(timeLeft % 60).padStart(2, '0');
+    document.getElementById("timer").innerText = `${min}:${sec}`;
+  }
 
-      // Start reverse countdown when login is successful
-      startTimer();
+  // Login
+  function login() {
+    let name = document.getElementById("refName").value.trim();
+    let court = document.getElementById("courtNumber").value.trim();
+    let otp = document.getElementById("otp").value.trim();
+
+    if (!name || !court || otp !== "12345") {
+      document.getElementById("loginError").innerText = "Invalid details. Try again.";
+      return;
     }
-  </script>
+
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("scorePage").style.display = "block";
+    document.getElementById("refNameBox").innerText = "Ref Name: " + name;
+    document.getElementById("courtBox").innerText = "Court: " + court;
+
+    // Start reverse countdown when login is successful
+    startTimer();
+  }
+</script>
+
 
 
 </body>
