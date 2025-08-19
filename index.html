@@ -117,13 +117,27 @@
       if (rotated) {
         player = (player === "chong") ? "hong" : "chong";
       }
-      if (player === "chong") {
-        scoreChong += value;
-        document.getElementById("scoreChong").textContent = scoreChong;
+
+      if (value === -1) {
+        // Deduct 1 from current player and add 1 to opponent
+        if (player === "chong") {
+          scoreChong -= 1;
+          scoreHong += 1;
+        } else {
+          scoreHong -= 1;
+          scoreChong += 1;
+        }
       } else {
-        scoreHong += value;
-        document.getElementById("scoreHong").textContent = scoreHong;
+        // Normal scoring
+        if (player === "chong") {
+          scoreChong += value;
+        } else {
+          scoreHong += value;
+        }
       }
+
+      document.getElementById("scoreChong").textContent = scoreChong;
+      document.getElementById("scoreHong").textContent = scoreHong;
     }
 
     function rotatePlayers() {
