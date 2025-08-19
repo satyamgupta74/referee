@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
       background: #f8f9fa;
       font-family: Arial, sans-serif;
     }
+
     .scoreboard {
       display: flex;
       justify-content: center;
@@ -18,16 +20,24 @@
       flex-wrap: wrap;
       margin-top: 20px;
     }
+
     .player {
       text-align: center;
     }
+
     .player h3 {
       color: white;
       padding: 5px 15px;
       border-radius: 5px;
     }
-    .chong h3 { background: #007bff; }
-    .hong h3 { background: #dc3545; }
+
+    .chong h3 {
+      background: #007bff;
+    }
+
+    .hong h3 {
+      background: #dc3545;
+    }
 
     .btn-score {
       width: 70px;
@@ -38,8 +48,14 @@
       font-weight: bold;
       color: #fff;
     }
-    .btn-chong { background: #007bff; }
-    .btn-hong { background: #dc3545; }
+
+    .btn-chong {
+      background: #007bff;
+    }
+
+    .btn-hong {
+      background: #dc3545;
+    }
 
     .info-bar {
       display: flex;
@@ -48,6 +64,7 @@
       gap: 10px;
       margin-top: 15px;
     }
+
     .info-box {
       background: #6c757d;
       color: #fff;
@@ -55,6 +72,7 @@
       border-radius: 5px;
       font-size: 15px;
     }
+
     .rotate-btn {
       border: none;
       background: #dc3545;
@@ -63,6 +81,7 @@
       border-radius: 8px;
       font-size: 20px;
     }
+
     @media (max-width: 768px) {
       .btn-score {
         width: 60px;
@@ -72,6 +91,7 @@
     }
   </style>
 </head>
+
 <body class="p-3">
 
   <!-- OTP Page -->
@@ -135,64 +155,84 @@
     </div>
   </div>
 
-<script>
-  let chongScore = 0;
-  let hongScore = 0;
-  let rotated = false;
+  <script>
+    let chongScore = 0;
+    let hongScore = 0;
+    let rotated = false;
+    let timerInterval;
+    let countdownTime = 30; // total seconds (2 minutes)
 
-  function addScore(player, points) {
-    if (player === "chong") {
-      if (points === -1) {
-        hongScore += 1; // only add to Hong
-      } else {
-        chongScore += points;
+    function addScore(player, points) {
+      if (player === "chong") {
+        if (points === -1) {
+          hongScore += 1;
+        } else {
+          chongScore += points;
+        }
+      } else if (player === "hong") {
+        if (points === -1) {
+          chongScore += 1;
+        } else {
+          hongScore += points;
+        }
       }
-    } else if (player === "hong") {
-      if (points === -1) {
-        chongScore += 1; // optional mirror rule
+      document.getElementById("scoreChong").innerText = chongScore;
+      document.getElementById("scoreHong").innerText = hongScore;
+    }
+
+    function rotate() {
+      let scoreboard = document.querySelector(".scoreboard");
+      rotated = !rotated;
+      if (rotated) {
+        scoreboard.style.flexDirection = "row-reverse";
       } else {
-        hongScore += points;
+        scoreboard.style.flexDirection = "row";
       }
     }
-    document.getElementById("scoreChong").innerText = chongScore;
-    document.getElementById("scoreHong").innerText = hongScore;
-  }
 
-  function rotate() {
-    let scoreboard = document.querySelector(".scoreboard");
-    rotated = !rotated;
-    if (rotated) {
-      scoreboard.style.flexDirection = "row-reverse";
-    } else {
-      scoreboard.style.flexDirection = "row";
-    }
-  }
+    // Countdown Timer
+    function startTimer() {
+      let timeLeft = countdownTime;
+      updateTimerDisplay(timeLeft);
 
-  // Timer
-  let seconds = 0;
-  setInterval(() => {
-    seconds++;
-    let min = String(Math.floor(seconds/60)).padStart(2,'0');
-    let sec = String(seconds%60).padStart(2,'0');
-    document.getElementById("timer").innerText = `${min}:${sec}`;
-  },1000);
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay(timeLeft);
 
-  // Login
-  function login() {
-    let name = document.getElementById("refName").value.trim();
-    let court = document.getElementById("courtNumber").value.trim();
-    let otp = document.getElementById("otp").value.trim();
-
-    if (!name || !court || otp !== "12345") {
-      document.getElementById("loginError").innerText = "Invalid details. Try again.";
-      return;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+        }
+      }, 1000);
     }
 
-    document.getElementById("loginPage").style.display = "none";
-    document.getElementById("scorePage").style.display = "block";
-    document.getElementById("refNameBox").innerText = "Ref Name: " + name;
-    document.getElementById("courtBox").innerText = "Court: " + court;
-  }
-</script>
+    function updateTimerDisplay(timeLeft) {
+      let min = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+      let sec = String(timeLeft % 60).padStart(2, '0');
+      document.getElementById("timer").innerText = `${min}:${sec}`;
+    }
+
+    // Login
+    function login() {
+      let name = document.getElementById("refName").value.trim();
+      let court = document.getElementById("courtNumber").value.trim();
+      let otp = document.getElementById("otp").value.trim();
+
+      if (!name || !court || otp !== "12345") {
+        document.getElementById("loginError").innerText = "Invalid details. Try again.";
+        return;
+      }
+
+      document.getElementById("loginPage").style.display = "none";
+      document.getElementById("scorePage").style.display = "block";
+      document.getElementById("refNameBox").innerText = "Ref Name: " + name;
+      document.getElementById("courtBox").innerText = "Court: " + court;
+
+      // Start reverse countdown when login is successful
+      startTimer();
+    }
+  </script>
+
+
 </body>
+
 </html>
