@@ -1,143 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Referee Score</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background: #f7f8fa; }
-    .player {
-      padding: 20px; border-radius: 10px; color: #fff;
-      font-size: 1.5rem; font-weight: 700; text-align: center;
-      min-height: 120px; display: flex; flex-direction: column; justify-content: center;
+    body {
+      background: #f8f9fa;
+      font-family: Arial, sans-serif;
     }
-    .chong { background-color: #007bff; } /* Blue */
-    .hong  { background-color: #dc3545; } /* Red  */
-    .score { font-size: 2rem; font-weight: 800; }
-    .hidden { display: none; }
-    .player-container { gap: 20px; }
+    .scoreboard {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .player {
+      text-align: center;
+    }
+    .player h3 {
+      color: white;
+      padding: 5px 15px;
+      border-radius: 5px;
+    }
+    .chong h3 { background: #007bff; }
+    .hong h3 { background: #dc3545; }
+
+    .btn-score {
+      width: 70px;
+      height: 70px;
+      margin: 8px;
+      font-size: 22px;
+      border-radius: 15px;
+      font-weight: bold;
+      color: #fff;
+    }
+    .btn-chong { background: #007bff; }
+    .btn-hong { background: #dc3545; }
+
+    .info-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .info-box {
+      background: #6c757d;
+      color: #fff;
+      padding: 5px 15px;
+      border-radius: 5px;
+      font-size: 15px;
+    }
+    .rotate-btn {
+      border: none;
+      background: #dc3545;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 20px;
+    }
+    @media (max-width: 768px) {
+      .btn-score {
+        width: 60px;
+        height: 60px;
+        font-size: 18px;
+      }
+    }
   </style>
 </head>
-<body class="container py-4">
+<body class="p-3">
 
-  <!-- Login -->
-  <div id="loginSection" class="text-center">
-    <h2>Referee Login</h2>
-    <input type="text" id="refName" class="form-control w-50 mx-auto my-2" placeholder="Enter Referee Name">
-    <input type="text" id="refCourt" class="form-control w-50 mx-auto my-2" placeholder="Enter Court Number (e.g. C1)">
-    <input type="password" id="otpInput" class="form-control w-50 mx-auto my-2" placeholder="Enter OTP">
-    <button class="btn btn-primary my-2" onclick="login()">Login</button>
-    <p class="text-danger mt-2" id="loginError"></p>
+  <!-- OTP Page -->
+  <div id="loginPage" class="container text-center">
+    <h2 class="mb-4">Referee Login</h2>
+    <div class="mb-3">
+      <input type="text" id="refName" class="form-control" placeholder="Enter Referee Name">
+    </div>
+    <div class="mb-3">
+      <input type="text" id="courtNumber" class="form-control" placeholder="Enter Court Number">
+    </div>
+    <div class="mb-3">
+      <input type="password" id="otp" class="form-control" placeholder="Enter OTP (12345)">
+    </div>
+    <button class="btn btn-primary w-100" onclick="login()">Login</button>
+    <p id="loginError" class="text-danger mt-2"></p>
   </div>
 
-  <!-- Main Scoreboard -->
-  <div id="scoreboard" class="hidden">
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-      <h2>Referee Score</h2>
-      <div class="d-flex align-items-center gap-3">
-        <span id="refInfo" class="fw-bold text-primary"></span>
-        <button class="btn btn-warning" onclick="rotatePlayers()">Rotate Players</button>
-        <button class="btn btn-danger" onclick="resetScores()">Reset Scores</button>
+  <!-- Scoreboard Page -->
+  <div id="scorePage" style="display:none;">
+    <div class="scoreboard">
+      <!-- Chong -->
+      <div class="player chong">
+        <h3 id="chongLabel">Chong</h3>
+        <div>
+          <button class="btn btn-score btn-chong" onclick="addScore('chong',1)">1</button>
+          <button class="btn btn-score btn-chong" onclick="addScore('chong',2)">2</button>
+          <button class="btn btn-score btn-chong" onclick="addScore('chong',3)">3</button><br>
+          <button class="btn btn-score btn-chong" onclick="addScore('chong',4)">4</button>
+          <button class="btn btn-score btn-chong" onclick="addScore('chong',5)">5</button>
+          <button class="btn btn-score btn-chong" onclick="addScore('chong',-1)">-1</button>
+        </div>
+        <h4 id="scoreChong">0</h4>
+      </div>
+
+      <!-- Timer -->
+      <div class="d-flex flex-column align-items-center justify-content-center">
+        <div class="info-box" id="timer">00:00</div>
+      </div>
+
+      <!-- Hong -->
+      <div class="player hong">
+        <h3 id="hongLabel">Hong</h3>
+        <div>
+          <button class="btn btn-score btn-hong" onclick="addScore('hong',1)">1</button>
+          <button class="btn btn-score btn-hong" onclick="addScore('hong',2)">2</button>
+          <button class="btn btn-score btn-hong" onclick="addScore('hong',3)">3</button><br>
+          <button class="btn btn-score btn-hong" onclick="addScore('hong',4)">4</button>
+          <button class="btn btn-score btn-hong" onclick="addScore('hong',5)">5</button>
+          <button class="btn btn-score btn-hong" onclick="addScore('hong',-1)">-1</button>
+        </div>
+        <h4 id="scoreHong">0</h4>
       </div>
     </div>
 
-    <div id="playerRow" class="row justify-content-center player-container mb-4">
-      <div id="chongBox" class="col-12 col-md-5 player chong">
-        Chong <br><span id="scoreChong" class="score">0</span>
-      </div>
-      <div id="hongBox" class="col-12 col-md-5 player hong">
-        Hong <br><span id="scoreHong" class="score">0</span>
-      </div>
-    </div>
-
-    <!-- Score Buttons -->
-    <div class="card shadow">
-      <div class="card-body">
-        <h6 class="mb-2">Score Chong (Blue)</h6>
-        <div class="btn-group d-flex flex-wrap mb-3">
-          <button class="btn btn-outline-primary m-1" onclick="addScore('chong',1)">+1</button>
-          <button class="btn btn-outline-primary m-1" onclick="addScore('chong',2)">+2</button>
-          <button class="btn btn-outline-primary m-1" onclick="addScore('chong',3)">+3</button>
-          <button class="btn btn-outline-primary m-1" onclick="addScore('chong',4)">+4</button>
-          <button class="btn btn-outline-primary m-1" onclick="addScore('chong',5)">+5</button>
-          <button class="btn btn-outline-dark m-1"   onclick="addScore('chong',-1)">-1</button>
-        </div>
-
-        <h6 class="mb-2">Score Hong (Red)</h6>
-        <div class="btn-group d-flex flex-wrap">
-          <button class="btn btn-outline-danger m-1" onclick="addScore('hong',1)">+1</button>
-          <button class="btn btn-outline-danger m-1" onclick="addScore('hong',2)">+2</button>
-          <button class="btn btn-outline-danger m-1" onclick="addScore('hong',3)">+3</button>
-          <button class="btn btn-outline-danger m-1" onclick="addScore('hong',4)">+4</button>
-          <button class="btn btn-outline-danger m-1" onclick="addScore('hong',5)">+5</button>
-          <button class="btn btn-outline-dark m-1"   onclick="addScore('hong',-1)">-1</button>
-        </div>
-      </div>
+    <!-- Info Bar -->
+    <div class="info-bar">
+      <button class="rotate-btn" onclick="rotate()">⟳</button>
+      <div class="info-box" id="refNameBox">Ref Name:</div>
+      <div class="info-box" id="courtBox">Court:</div>
     </div>
   </div>
 
-  <script>
-    let scoreChong = 0;
-    let scoreHong = 0;
+<script>
+  let chongScore = 0;
+  let hongScore = 0;
+  let rotated = false;
 
-    const validCourts = ["C1"]; // allowed court numbers
-
-    function login() {
-      const otp = document.getElementById("otpInput").value.trim();
-      const name = document.getElementById("refName").value.trim();
-      const court = document.getElementById("refCourt").value.trim().toUpperCase();
-      const errorEl = document.getElementById("loginError");
-
-      if (!name || !court || !otp) {
-        errorEl.textContent = "All fields are required!";
-        return;
-      }
-      if (otp !== "12345") {
-        errorEl.textContent = "Invalid OTP!";
-        return;
-      }
-      if (!validCourts.includes(court)) {
-        errorEl.textContent = "Invalid Court Number!";
-        return;
-      }
-
-      document.getElementById("loginSection").classList.add("hidden");
-      document.getElementById("scoreboard").classList.remove("hidden");
-
-      document.getElementById("refInfo").textContent = `Referee: ${name} | Court: ${court}`;
-    }
-
-    // –1 awards +1 to opponent only
-    function addScore(player, value) {
-      if (value === -1) {
-        if (player === "chong") scoreHong += 1;
-        else                    scoreChong += 1;
+  function addScore(player, points) {
+    if (player === "chong") {
+      if (points === -1) {
+        hongScore += 1; // only add to Hong
       } else {
-        if (player === "chong") scoreChong += value;
-        else                    scoreHong  += value;
+        chongScore += points;
       }
-      updateScores();
+    } else if (player === "hong") {
+      if (points === -1) {
+        chongScore += 1; // optional mirror rule
+      } else {
+        hongScore += points;
+      }
+    }
+    document.getElementById("scoreChong").innerText = chongScore;
+    document.getElementById("scoreHong").innerText = hongScore;
+  }
+
+  function rotate() {
+    let scoreboard = document.querySelector(".scoreboard");
+    rotated = !rotated;
+    if (rotated) {
+      scoreboard.style.flexDirection = "row-reverse";
+    } else {
+      scoreboard.style.flexDirection = "row";
+    }
+  }
+
+  // Timer
+  let seconds = 0;
+  setInterval(() => {
+    seconds++;
+    let min = String(Math.floor(seconds/60)).padStart(2,'0');
+    let sec = String(seconds%60).padStart(2,'0');
+    document.getElementById("timer").innerText = `${min}:${sec}`;
+  },1000);
+
+  // Login
+  function login() {
+    let name = document.getElementById("refName").value.trim();
+    let court = document.getElementById("courtNumber").value.trim();
+    let otp = document.getElementById("otp").value.trim();
+
+    if (!name || !court || otp !== "12345") {
+      document.getElementById("loginError").innerText = "Invalid details. Try again.";
+      return;
     }
 
-    function updateScores() {
-      document.getElementById("scoreChong").textContent = scoreChong;
-      document.getElementById("scoreHong").textContent  = scoreHong;
-    }
-
-    function rotatePlayers() {
-      const row = document.getElementById("playerRow");
-      const chong = document.getElementById("chongBox");
-      const hong  = document.getElementById("hongBox");
-      if (row.firstElementChild === chong) row.insertBefore(hong, chong);
-      else                                 row.insertBefore(chong, hong);
-    }
-
-    function resetScores() {
-      scoreChong = 0;
-      scoreHong  = 0;
-      updateScores();
-    }
-  </script>
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("scorePage").style.display = "block";
+    document.getElementById("refNameBox").innerText = "Ref Name: " + name;
+    document.getElementById("courtBox").innerText = "Court: " + court;
+  }
+</script>
 </body>
 </html>
