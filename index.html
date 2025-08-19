@@ -62,7 +62,7 @@
           <button class="btn btn-outline-primary m-1" onclick="addScore('chong',3)">+3</button>
           <button class="btn btn-outline-primary m-1" onclick="addScore('chong',4)">+4</button>
           <button class="btn btn-outline-primary m-1" onclick="addScore('chong',5)">+5</button>
-          <button class="btn btn-outline-dark m-1" onclick="addScore('chong',-1)">-1</button>
+          <button class="btn btn-outline-dark m-1"   onclick="addScore('chong',-1)">-1</button>
         </div>
 
         <h6 class="mb-2">Score Hong (Red)</h6>
@@ -72,7 +72,7 @@
           <button class="btn btn-outline-danger m-1" onclick="addScore('hong',3)">+3</button>
           <button class="btn btn-outline-danger m-1" onclick="addScore('hong',4)">+4</button>
           <button class="btn btn-outline-danger m-1" onclick="addScore('hong',5)">+5</button>
-          <button class="btn btn-outline-dark m-1" onclick="addScore('hong',-1)">-1</button>
+          <button class="btn btn-outline-dark m-1"   onclick="addScore('hong',-1)">-1</button>
         </div>
       </div>
     </div>
@@ -92,16 +92,11 @@
       }
     }
 
-    // Always act on the named player, regardless of rotation
+    // –1 awards +1 to the OPPONENT only (no deductions)
     function addScore(player, value) {
       if (value === -1) {
-        if (player === "chong") {
-          scoreChong -= 1;   // deduct from Chong
-          scoreHong  += 1;   // add to Hong
-        } else {
-          scoreHong  -= 1;   // deduct from Hong
-          scoreChong += 1;   // add to Chong
-        }
+        if (player === "chong") scoreHong += 1;
+        else                    scoreChong += 1;
       } else {
         if (player === "chong") scoreChong += value;
         else                    scoreHong  += value;
@@ -114,7 +109,7 @@
       document.getElementById("scoreHong").textContent  = scoreHong;
     }
 
-    // Rotation only swaps visuals; it does NOT affect scoring
+    // Visual swap only; scoring still targets the named player
     function rotatePlayers() {
       const row = document.getElementById("playerRow");
       const chong = document.getElementById("chongBox");
@@ -124,7 +119,8 @@
     }
 
     function resetScores() {
-      scoreChong = 0; scoreHong = 0;
+      scoreChong = 0;
+      scoreHong  = 0;
       updateScores();
     }
   </script>
