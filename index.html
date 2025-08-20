@@ -115,7 +115,7 @@
     <div class="scoreboard">
       <!-- Chong -->
       <div class="player chong">
-        <h3 id="chongLabel">Chong</h3>
+        <h3>Chong</h3>
         <div>
           <button class="btn btn-score btn-chong" onclick="addScore('chong',1)">1</button>
           <button class="btn btn-score btn-chong" onclick="addScore('chong',2)">2</button>
@@ -134,7 +134,7 @@
 
       <!-- Hong -->
       <div class="player hong">
-        <h3 id="hongLabel">Hong</h3>
+        <h3>Hong</h3>
         <div>
           <button class="btn btn-score btn-hong" onclick="addScore('hong',1)">1</button>
           <button class="btn btn-score btn-hong" onclick="addScore('hong',2)">2</button>
@@ -155,91 +155,83 @@
     </div>
   </div>
 
- <script>
-  let chongScore = 0;
-  let hongScore = 0;
-  let rotated = false;
-  let timerInterval; 
-  let countdownTime = 30; // total seconds (2 minutes)
-  let timerActive = false; // to control scoring
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    const socket = io("http://YOUR_SERVER_IP:4000"); // 🔹 Replace with backend IP
 
-  function addScore(player, points) {
-    if (!timerActive) return; // block scoring if time is over
+    let refereeName = "";
+    let courtNumber = "";
+    let chongScore = 0;
+    let hongScore = 0;
+    let rotated = false;
+    let timerInterval;
+    let secondsElapsed = 0;
 
-    if (player === "chong") {
-      if (points === -1) {
-        hongScore += 1; 
-      } else {
-        chongScore += points;
+    function addScore(player, points) {
+      // ✅ Emit event to backend
+      socket.emit("refereeScore", {
+        referee: refereeName,
+        court: courtNumber,
+        player,
+        points,
+        timestamp: new Date().toISOString()
+      });
+
+      console.log(`📤 Sent score -> Referee:${refereeName}, Court:${courtNumber}, Player:${player}, Points:${points}`);
+
+      // ✅ Local scoreboard update
+      if (player === "chong") {
+        if (points === -1) hongScore += 1;
+        else chongScore += points;
+      } else if (player === "hong") {
+        if (points === -1) chongScore += 1;
+        else hongScore += points;
       }
-    } else if (player === "hong") {
-      if (points === -1) {
-        chongScore += 1; 
-      } else {
-        hongScore += points;
-      }
-    }
-    document.getElementById("scoreChong").innerText = chongScore;
-    document.getElementById("scoreHong").innerText = hongScore;
-  }
 
-  function rotate() {
-    let scoreboard = document.querySelector(".scoreboard");
-    rotated = !rotated;
-    if (rotated) {
-      scoreboard.style.flexDirection = "row-reverse";
-    } else {
-      scoreboard.style.flexDirection = "row";
-    }
-  }
-
-  // Countdown Timer
-  function startTimer() {
-    let timeLeft = countdownTime;
-    timerActive = true;
-    updateTimerDisplay(timeLeft);
-
-    timerInterval = setInterval(() => {
-      timeLeft--;
-      updateTimerDisplay(timeLeft);
-
-      if (timeLeft <= 0) {
-        clearInterval(timerInterval);
-        timerActive = false;
-        alert("⏰ Time is over!");
-      }
-    }, 1000);
-  }
-
-  function updateTimerDisplay(timeLeft) {
-    let min = String(Math.floor(timeLeft / 60)).padStart(2, '0');
-    let sec = String(timeLeft % 60).padStart(2, '0');
-    document.getElementById("timer").innerText = `${min}:${sec}`;
-  }
-
-  // Login
-  function login() {
-    let name = document.getElementById("refName").value.trim();
-    let court = document.getElementById("courtNumber").value.trim();
-    let otp = document.getElementById("otp").value.trim();
-
-    if (!name || !court || otp !== "12345") {
-      document.getElementById("loginError").innerText = "Invalid details. Try again.";
-      return;
+      document.getElementById("scoreChong").innerText = chongScore;
+      document.getElementById("scoreHong").innerText = hongScore;
     }
 
-    document.getElementById("loginPage").style.display = "none";
-    document.getElementById("scorePage").style.display = "block";
-    document.getElementById("refNameBox").innerText = "Ref Name: " + name;
-    document.getElementById("courtBox").innerText = "Court: " + court;
+    function rotate() {
+      let scoreboard = document.querySelector(".scoreboard");
+      rotated = !rotated;
+      scoreboard.style.flexDirection = rotated ? "row-reverse" : "row";
+    }
 
-    // Start reverse countdown when login is successful
-    startTimer();
-  }
-</script>
+    // ✅ Match Timer (counting up)
+    function startTimer() {
+      secondsElapsed = 0;
+      if (timerInterval) clearInterval(timerInterval);
 
+      timerInterval = setInterval(() => {
+        secondsElapsed++;
+        const min = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+        const sec = String(secondsElapsed % 60).padStart(2, '0');
+        document.getElementById("timer").innerText = `${min}:${sec}`;
+      }, 1000);
+    }
 
+    // ✅ Login
+    function login() {
+      refereeName = document.getElementById("refName").value.trim();
+      courtNumber = document.getElementById("courtNumber").value.trim();
+      let otp = document.getElementById("otp").value.trim();
 
+      if (!refereeName || !courtNumber || otp !== "12345") {
+        document.getElementById("loginError").innerText = "Invalid details. Try again.";
+        return;
+      }
+
+      document.getElementById("loginPage").style.display = "none";
+      document.getElementById("scorePage").style.display = "block";
+      document.getElementById("refNameBox").innerText = "Ref Name: " + refereeName;
+      document.getElementById("courtBox").innerText = "Court: " + courtNumber;
+
+      socket.emit("refereeJoined", { referee: refereeName, court: courtNumber, otp });
+
+      startTimer();
+    }
+  </script>
 </body>
-
 </html>
+
